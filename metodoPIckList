@@ -1,0 +1,26 @@
+    // método pickList 
+    public List<SelectOption> getMinhasOpcoes() {
+        
+        // mapear o campo de lista de seleção/picklist que desejo listar
+        Schema.DescribeFieldResult describeResult = Imoveis__c.TipoDoImovel__c.getDescribe();
+        
+        // listar as opções válidas dentro do meu campo
+        List<Schema.PicklistEntry> entries = describeResult.getPickListValues();
+        
+        // Cria uma variavel de retorno do tipo lista para o objeto SelectOption
+        List<SelectOption> optionsToReturn = new List<SelectOption>();
+        
+        // Adiciona as opções do campo listadas
+        for(Schema.PicklistEntry pEntry : entries) {
+            
+            // se a opção esta ativa
+            // Ou pode aplicar o filtro que quiser, caso queira mostrar todas as opções
+            if(pEntry.isActive()) {
+                // Adiciona o nome e o valor na variável retorno
+                optionsToReturn.add(new SelectOption(pEntry.getValue(), pEntry.getLabel()));
+            }
+            
+        }
+        // Retorna a lista de selectOptions
+        return optionsToReturn;
+    }
