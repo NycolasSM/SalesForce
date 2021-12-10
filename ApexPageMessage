@@ -1,1 +1,3 @@
 ApexPages.addMessage(new ApexPages.message(ApexPages.Severity.CONFIRM, 'Imóvel cadastrado com sucesso!'));
+
+ApexPages.addMessage(new ApexPages.message(ApexPages.Severity.ERROR, 'o campo tipo do imóvel deverá ser preenchido'));
