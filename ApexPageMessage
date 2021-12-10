@@ -1,1 +1,1 @@
-ApexPages.addMessage(new ApexPage.message(ApexPages.Severity.CONFIRM, 'Imóvel cadastrado com sucesso!'))
+ApexPages.addMessage(new ApexPages.message(ApexPages.Severity.CONFIRM, 'Imóvel cadastrado com sucesso!'));
