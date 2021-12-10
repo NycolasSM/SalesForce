@@ -1,0 +1,38 @@
+Sintaxe:
+
+// para criar uma nova lista sem valores inseridos deve se usar "()" no final da declaração
+ex:
+List<String> nomeDaLista = new List<String>();
+
+result:
+[]
+
+// para criar uma nova lista porém com valores ja inseridos deve se usar "{}" com os valores dentro separados por virgula,
+ex:
+List<String> nomeDaLista = new List<String>{'Joao', 'Maria'};
+
+result:
+['Joao', 'Maria']
+
+
+Métodos da lista:
+
+GET(); - usado para buscar o valor de uma lista através do indice informado como paramentro do método
+ex:
+nomeDaLista.get(1)
+
+result:
+'Maria'
+
+obs:
+Lembrando que assim como o array o indece inicial é o 0
+
+ADD(); - usado para inserir novos dados na lista
+ex:
+nomaDaLista.add('Lucas')
+
+result:
+['Joao', 'Maria', 'Lucas']
+
+obs:
+Lembrando que não pode inserir varios dados de uma vez com o add(), apenas um por vez
