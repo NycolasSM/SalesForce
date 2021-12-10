@@ -1,0 +1,54 @@
+<apex:page controller="imobiliariaController">
+    
+    <style>
+        
+        #conteudo {
+        margin-top: 10%;
+        margin-left: 10%;
+        margin-right: 10%;
+        }
+        
+        #form1 {
+        width: 320px;
+        }
+        
+    </style>
+    
+    <apex:slds />
+    
+    <div id="conteudo" style="">
+        <center>
+            <div id="form1" class="slds-escope"> 
+                <article class="slds-card">
+                    <div class="slds-card__header">
+                        <h2 class="slds-card__header-title">
+                            <span><b>CADASTRO DE IMÓVEIS</b></span>
+                        </h2>
+                    </div>
+                    <div class="slds-card__body slds-card__body_inner slds-form-element__control">
+                        <apex:form >                       
+                            <apex:pageMessages id="showMessages"></apex:pageMessages>                     
+                            <apex:panelGrid columns="2">
+                                Quartos: <apex:inputText value="{!quartos}" />
+                                Banheiros: <apex:inputText value="{!banheiros}" />
+                                Sala: <apex:inputText value="{!sala}" />
+                                Cozinha: <apex:inputText value="{!cozinha}" />
+                                Copa: <apex:inputText value="{!copa}" />
+                                Suite: <apex:inputText value="{!suite}" />
+                                Vagas de garagem: <apex:inputText value="{!VagasDeGaragem}" />
+                                Valor: <apex:inputText value="{!valorImovel}" />      
+                                Tipo do Imóvel:
+                                <apex:selectList value="{!tipoDoImovel}" multiselect="false" size="1" required="true">
+                                    <apex:selectOptions value="{!MinhasOpcoes}" />
+                                </apex:selectList>
+                            </apex:panelGrid>
+                            <br />
+                            <apex:commandButton value="Salvar" action="{!salvarImoveis}" styleClass="slds-button slds-button_success" />                    
+                        </apex:form>    
+                    </div> 
+                </article>
+            </div>
+        </center>
+    </div>
+    
+</apex:page>
