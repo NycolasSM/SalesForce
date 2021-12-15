@@ -1,0 +1,34 @@
+Cada registro do Salesforce é representado como um sObject antes de ser inserido no Salesforce. Da mesma forma, quando os registros persistentes
+são recuperados do Salesforce, eles são armazenados em uma variável sObject.
+
+Para criar um sObject, você precisa declarar uma variável e atribuí-la a uma instância de sObject. O tipo de dados da variável é sObject.
+
+O exemplo a seguir cria uma variável sObject do tipo Conta e a atribui a uma nova conta com o nome Acme.
+
+Account acct = new Account(Name='Acme');
+
+
+
+
+
+
+Criando sObjects e adicionando campos
+Antes de poder inserir um registro do Salesforce, você deve primeiro criá-lo na memória como um sObject. Como com qualquer outro objeto, os sObjects são criados com o operador new:
+
+Account acct = new Account();
+O nome de objeto da API torna-se no tipo de dados da variável sObject no Apex. Neste exemplo, Account é o tipo de dados da variável acct.
+
+A conta referenciada pela variável acct está vazia porque ainda não preenchemos seus campos. Há duas maneiras de adicionar campos: pelo construtor ou usando notação de ponto.
+
+A maneira mais rápida de adicionar campos é especificando-os como pares nome-valor no construtor. Por exemplo, esta instrução cria um novo sObject de conta e preenche o campo Nome com um valor de string.
+
+Account acct = new Account(Name='Acme');
+O campo Nome é o único campo obrigatório para contas. Isso significa que ele tem que estar preenchido antes que um novo registro possa ser inserido. No entanto, você também pode preencher outros campos para o novo registro. Este exemplo adiciona um número de telefone e o número de funcionários.
+
+Account acct = new Account(Name='Acme', Phone='(415)555-1212', NumberOfEmployees=100);
+Como alternativa, você pode usar a notação de ponto para adicionar campos a um sObject. O exemplo seguinte é equivalente ao anterior, embora exija mais algumas linhas de código.
+
+Account acct = new Account();
+acct.Name = 'Acme';
+acct.Phone = '(415)555-1212';
+acct.NumberOfEmployees = 100;
