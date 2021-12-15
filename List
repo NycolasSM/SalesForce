@@ -36,3 +36,10 @@ result:
 
 obs:
 Lembrando que não pode inserir varios dados de uma vez com o add(), apenas um por vez
+
+
+fazendo um laço for com a lista
+
+for(Integer i=0;i<nomeDaLista.size();i++) {
+    System.debug(colors[i]);
+}
