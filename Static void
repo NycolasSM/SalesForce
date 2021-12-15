@@ -1,0 +1,12 @@
+os metodos estaticos tem a vantagem de nao precisar instaciar o metodo como classe mas sim só é necessario referenciar a classe com o metodo como no exemplo
+feito na atividade https://trailhead.salesforce.com/pt-BR/content/learn/modules/apex_database/apex_database_intro?trail_id=force_com_dev_beginner
+
+// não estatico
+
+EmailManager em = new EmailManager();
+em.sendMail('nightneonbr@gmail.com', 'Trailhead Tutorial', '123 body');
+
+
+// estatico
+
+EmailManager.sendMail('Your email address', 'Trailhead Tutorial', '123 body');
