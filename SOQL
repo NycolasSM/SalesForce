@@ -1,0 +1,95 @@
+Salesforce Object Query Language (SOQL)
+
+https://trailhead.salesforce.com/pt-BR/content/learn/modules/apex_database/apex_database_soql?trail_id=force_com_dev_beginner
+
+ A SOQL é semelhante à linguagem SQL padrão, mas é personalizada para a Lightning Platform.
+ 
+ a Sintaxe de uma consulta SOQL é assim
+ 
+ SELECT fields FROM ObjectName [WHERE Condition]
+ 
+ EX:
+ 
+ SELECT Name,Phone FROM Account
+ 
+ A cláusula WHERE é opcional. Vamos começar com uma consulta muito simples. Por exemplo, 
+ a consulta a seguir recupera contas e obtém os campos Nome e Telefone para cada conta.
+ 
+ A consulta tem duas partes:
+
+SELECT Name,Phone: Esta parte lista os campos que você gostaria de recuperar. Os campos são especificados depois da palavra-chave SELECT em uma lista delimitada por vírgula. Ou você pode especificar apenas um campo; nesse caso, nenhuma vírgula é necessária (por exemplo, SELECT Phone).
+FROM Account: Esta parte especifica o objeto personalizado ou padrão que você deseja recuperar. Neste exemplo, é Conta. Para um objeto personalizado chamado Invoice_Statement, é Invoice_Statement__c.
+
+=====================================================================================
+
+Filtrando resultados de consultas com condições
+Se você tiver mais de uma conta na organização, todas elas serão retornadas. Se quiser limitar as contas retornadas para contas que cumprem uma determinada condição, você pode adicionar essa condição dentro da cláusula WHERE. O exemplo a seguir recupera apenas as contas cujos nomes são SFDC Computing. Observe que as comparações nas strings não diferenciam caracteres maiúsculos e minúsculos.
+
+SELECT Name,Phone FROM Account WHERE Name='SFDC Computing'
+A cláusula WHERE pode conter várias condições que são agrupadas usando operadores lógicos (AND, OR) e parênteses. Por exemplo, esta consulta retorna todas as contas com o nome SFDC Computing que tenham mais de 25 funcionários:
+
+SELECT Name,Phone FROM Account WHERE (Name='SFDC Computing' AND NumberOfEmployees>25)
+
+OBS:
+Em vez de usar o operador de igual (=) para comparação, você pode executar correspondências difusas usando o operador LIKE. Por exemplo, você pode recuperar todas as contas cujos nomes começam com SFDC usando esta condição: WHERE Name LIKE 'SFDC%'. O caractere curinga % corresponde a um ou nenhum caractere. Em contraste, o caractere _ pode ser usado para corresponder a apenas um caractere.
+
+============================================================================================
+
+Ordenando os resultados da consulta
+Quando uma consulta é executada, ela não retorna os registros do Salesforce em uma ordem específica, então não dá para confiar que a ordem dos registros da matriz retornada seja a mesma sempre que a consulta for executada. No entanto, você pode optar por classificar o registro retornado adicionando uma cláusula ORDER BY e especificando o campo pelo qual o conjunto de registros deve ser classificado. O exemplo a seguir classifica todas as contas recuperadas com base no campo de nome.
+
+SELECT Name,Phone FROM Account ORDER BY Name
+A ordem de classificação padrão é a ordem alfabética, especificada como ASC. A instrução anterior é equivalente a:
+
+SELECT Name,Phone FROM Account ORDER BY Name ASC
+Para inverter a ordem, use a palavra-chave DESC para ordem decrescente:
+
+SELECT Name,Phone FROM Account ORDER BY Name DESC
+
+=========================================================================================
+
+Como acessar variáveis em consultas SOQL
+As instruções SOQL no Apex podem referenciar expressões e variáveis de código do Apex se forem precedidas por dois pontos (:). O uso de uma variável local dentro de uma instrução SOQL é chamado de vínculo.
+
+Este exemplo mostra como usar a variável targetDepartment na cláusula WHERE.
+
+String targetDepartment = 'Wingo';
+Contact[] techContacts = [SELECT FirstName,LastName 
+                          FROM Contact WHERE Department=:targetDepartment];
+                          
+======================================================================================
+
+Como consultar registros em lotes usando loops for SOQL
+Com um loop for SOQL, você pode incluir uma consulta SOQL em um loop for. Os resultados de uma consulta SOQL podem ser iterados dentro do loop. Os loops for SOQL usam um método diferente para recuperar registros; os registros são recuperados por meio de agrupamento eficiente, com chamadas para a consulta e métodos queryMore da API SOAP. Usando os loops for SOQL, você pode evitar bater o limite de tamanho do heap.
+
+Os loops for SOQL iteram sobre todos os registros sObject retornados por uma consulta SOQL. A sintaxe de um loop for SOQL pode ser:
+for (variable : [soql_query]) {
+    code_block
+}
+ou
+for (variable_list : [soql_query]) {
+    code_block
+}
+Tanto variable quanto variable_list devem ser do mesmo tipo que os sObjects retornados por uma soql_query.
+
+É preferível usar o formato de lista sObject do loop for SOQL, pois o loop é executado uma vez para cada lote de 200 sObjects. Dessa forma, você pode trabalhar em lotes de registros e executar operações DML em lote, o que ajuda a evitar atingir os limites de administrador.
+
+insert new Account[]{new Account(Name = 'for loop 1'), 
+                     new Account(Name = 'for loop 2'), 
+                     new Account(Name = 'for loop 3')};
+// The sObject list format executes the for loop once per returned batch
+// of records
+Integer i=0;
+Integer j=0;
+for (Account[] tmp : [SELECT Id FROM Account WHERE Name LIKE 'for loop _']) {
+    j = tmp.size();
+    i++;
+}
+System.assertEquals(3, j); // The list should have contained the three accounts
+                       // named 'yyy'
+System.assertEquals(1, i); // Since a single batch can hold up to 200 records and,
+                       // only three records should have been returned, the 
+                       // loop should have executed only once
+                       
+                       
+  
