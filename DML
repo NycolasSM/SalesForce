@@ -1,0 +1,302 @@
+Data Manipulation Language
+
+o DML da salesforce é mais simples para utilizar, não necessita de uma configuração e de meios externos para acessar o banco, basta somente referenciar no código do apex
+que assim ja terá como manipular inserindo, excluindo, atualizando e etc.. os registros
+
+EX:
+
+// Create the account sObject 
+Account acct = new Account(Name='Acme', Phone='(415)555-1212', NumberOfEmployees=100);
+// Insert the account by using DML
+insert acct;
+
+
+As seguintes instruções DML estão disponíveis.
+
+- insert
+- update
+- upsert
+- delete
+- undelete
+- merge
+
+=====================================================================================================
+
+ao inserir um novo sObject nos registros, automaticamente sera atribuído um Id a ele, para visualizar este id pode se usar esse exemplo
+
+EX: 
+
+// Create the account sObject 
+Account acct = new Account(Name='Acme', Phone='(415)555-1212', NumberOfEmployees=100);
+// Insert the account by using DML
+insert acct;
+// Get the new ID on the inserted sObject argument
+ID acctID = acct.Id;
+// Display this ID in the debug log
+System.debug('ID = ' + acctID);
+// Debug log result (the ID will be different in your case)
+// DEBUG|ID = 001D000000JmKkeIAF
+
+=========================================================================================================
+
+Inserindo registros em massa com um lista de sObjects
+
+neste exemplo ira ser criado uma lista de sObjects e inserilos, após isso serão atualizados todos os registros que contém o departamento finanças
+
+EX:
+
+// Create a list of contacts
+List<Contact> conList = new List<Contact> {
+    new Contact(FirstName='Joe',LastName='Smith',Department='Finance'),
+        new Contact(FirstName='Kathy',LastName='Smith',Department='Technology'),
+        new Contact(FirstName='Caroline',LastName='Roth',Department='Finance'),
+        new Contact(FirstName='Kim',LastName='Shain',Department='Education')};
+            
+// Bulk insert all contacts with one DML call
+insert conList;
+// List to hold the new contacts to update
+List<Contact> listToUpdate = new List<Contact>();
+// Iterate through the list and add a title only
+//   if the department is Finance
+for(Contact con : conList) {
+    if (con.Department == 'Finance') {
+        con.Title = 'Financial analyst';
+        // Add updated contact sObject to the list.
+        listToUpdate.add(con);
+    }
+}
+// Bulk update all contacts with one DML call
+update listToUpdate;
+
+=======================================================================================================================
+
+Inserindo e atualizando registros
+Se você tem uma lista que contém uma mistura de registros novos e existentes, pode processar inserções e atualizações de todos os registros da lista usando a instrução upsert. Essa instrução ajuda a evitar a criação de registros duplicados e pode ajudá-lo a ganhar tempo, já que você não tem que determinar quais registros foram criados primeiro.
+
+A instrução upsert coincide com os sObjects com registros existentes, comparando os valores de um campo. Se você não especificar um campo ao chamar esta instrução, a instrução upsert usa a ID do sObject para coincidir o sObject com os registros existentes no Salesforce. Você também pode especificar um campo para usar como correspondência. Para objetos personalizados, especifique um campo personalizado marcado como ID externa. Para objetos padrão, você pode especificar qualquer campo que tenha a propriedade idLookup definida como verdadeira. Por exemplo, o campo Email de Contato ou Usuário tem a propriedade idLookup definida. Para verificar a propriedade de um campo, consulte Referência de objeto para Salesforce e Lightning Platform.
+
+Sintaxe de inserir e atualizar
+
+upsert sObject | sObject[]
+
+upsert sObject | sObject[]​​ field
+
+O campo opcional é um token de campo. Por exemplo, para especificar o campo MyExternalID, a instrução é:
+upsert sObjectList Account.Fields.MyExternalId;
+A instrução inserir e atualizar usa a chave primária do registro sObject (a ID), um campo idLookup ou um campo de ID externa para determinar se deve criar um novo registro ou atualizar um registro existente:
+
+Se a chave não for correspondida, um novo registro de objeto é criado.
+Se a chave for correspondida uma vez, o registro de objeto existente é atualizado.
+Se a chave for correspondida várias vezes, um erro é gerado e o registro de objeto não é inserido nem atualizado.
+
+EX:
+
+// Insert the Josh contact
+Contact josh = new Contact(FirstName='Josh',LastName='Kaplan',Department='Finance');       
+insert josh;
+// Josh's record has been inserted
+//   so the variable josh has now an ID
+//   which will be used to match the records by upsert
+josh.Description = 'Josh\'s record has been updated by the upsert operation.';
+// Create the Kathy contact, but don't persist it in the database
+Contact kathy = new Contact(FirstName='Kathy',LastName='Brown',Department='Technology');
+// List to hold the new contacts to upsert
+List<Contact> contacts = new List<Contact> { josh, kathy };
+// Call upsert
+upsert contacts;
+// Result: Josh is updated and Kathy is created.
+
+Para especificar um campo diferente como por exemplo o email, pode se usar esse exemplo:
+
+EX:
+
+Contact jane = new Contact(FirstName='Jane',
+                         LastName='Smith',
+                         Email='jane.smith@example.com',
+                         Description='Contact of the day');
+insert jane;
+// 1. Upsert using an idLookup field
+// Create a second sObject variable.
+// This variable doesn’t have any ID set.
+Contact jane2 = new Contact(FirstName='Jane',
+                         LastName='Smith',  
+                         Email='jane.smith@example.com',
+                         Description='Prefers to be contacted by email.');
+// Upsert the contact by using the idLookup field for matching.
+upsert jane2 Contact.fields.Email;
+// Verify that the contact has been updated
+System.assertEquals('Prefers to be contacted by email.',
+                   [SELECT Description FROM Contact WHERE Id=:jane.Id].Description);
+
+======================================================================================================================
+
+Excluindo registros
+
+todo registro que é excluído permanecesse na lixeira por 15 dias onde pode ser restaurado, depois disto o registro é cancelado permanentemente
+
+neste exemplo iram ser excluidos todos os registros que contém o sobrenome Smith
+
+EX:
+
+Contact[] contactsDel = [SELECT Id FROM Contact WHERE LastName='Smith']; 
+delete contactsDel;
+
+==============================================================================================================
+
+Capturando possíveis erros com o dml exceptions
+
+para capturar erros que podem acontecer ao inserir registros, pode se usar o DmlExecption junto com o try catch para capturar a mensagem e lidar com os erros
+
+neste exemplo ira acontecer o erro pois não são inseridos os campos obrigatorios na inserção do novo registro
+
+EX:
+
+try {
+    // This causes an exception because 
+    //   the required Name field is not provided.
+    Account acct = new Account();
+    // Insert the account 
+    insert acct;
+} catch (DmlException e) {
+    System.debug('A DML exception has occurred: ' +
+                e.getMessage());
+}
+
+=======================================================================================================================
+
+Métodos Database
+O Apex contém a classe Database integrada, que fornece métodos que executam operações DML e espelham as instruções DML equivalentes.
+Os métodos Database são estáticos e chamados no nome da classe.
+
+Database.insert()
+Database.update()
+Database.upsert()
+Database.delete()
+Database.undelete()
+Database.merge()
+Diferentemente de instruções DML, métodos Database possuem um parâmetro allOrNone opcional, que permite que você especifique se a operação pode ser parcialmente bem-sucedida. Quando esse parâmetro está definido como false, caso ocorram erros em um conjunto parcial de registros, os registros bem-sucedidos serão confirmados e os erros serão retornados para os registros de falha. Além disso, com a opção de sucesso parcial, nenhuma exceção é gerada.
+
+Você chama o método insert com o parâmetro allOrNone definido como false da seguinte forma.
+
+Database.insert(recordList, false);
+Os métodos Database retornam objetos de resultado contendo informações de sucesso ou falha para cada registro. Por exemplo, cada operação de inserir e atualizar retorna uma matriz de objetos Database.SaveResult.
+
+Database.SaveResult[] results = Database.insert(recordList, false);
+Nota
+Nota
+A operação upsert (inserir e atualizar) retorna objetos Database.UpsertResult e a operação de excluir retorna objetos Database.DeleteResult.
+
+Por padrão, o parâmetro allOrNone é definido como true, o que significa que o método Database se comporta como sua instrução DML equivalente e gera uma exceção se uma falha é encontrada.
+
+As duas instruções a seguir são equivalentes à instrução insert recordList;.
+
+Database.insert(recordList);
+E:
+
+Database.insert(recordList, true);
+Ir além das noções básicas
+Além desses métodos, a classe Database contém métodos que não são fornecidos como instruções DML. Por exemplo, métodos usados para controle e reversão de transação, para esvaziar a Lixeira, e métodos relacionados a consultas SOQL. Você aprenderá sobre a SOQL em outra unidade.
+
+Exemplo: Inserindo registros com sucesso parcial
+Vamos examinar um exemplo que utiliza os métodos Database. Este exemplo se baseia no exemplo do DML em massa, mas substitui a instrução DML por um método Database. O método Database.insert() é chamado com a opção de sucesso parcial. Um contato na lista não possui nenhum campo propositalmente e causará um erro, pois o contato não pode ser salvo sem o campo obrigatório LastName. Três contatos são confirmados e o contato sem campos gera um erro. A última parte deste exemplo itera nos resultados retornados e escreve mensagens de depuração no registro de depuração.
+
+Execute este exemplo na janela Executar anônimo no Developer Console.
+// Create a list of contacts
+List<Contact> conList = new List<Contact> {
+        new Contact(FirstName='Joe',LastName='Smith',Department='Finance'),
+        new Contact(FirstName='Kathy',LastName='Smith',Department='Technology'),
+        new Contact(FirstName='Caroline',LastName='Roth',Department='Finance'),
+        new Contact()};
+            
+// Bulk insert all contacts with one DML call
+Database.SaveResult[] srList = Database.insert(conList, false);
+// Iterate through each returned result
+for (Database.SaveResult sr : srList) {
+    if (sr.isSuccess()) {
+        // Operation was successful, so get the ID of the record that was processed
+        System.debug('Successfully inserted contact. Contact ID: ' + sr.getId());
+    } else {
+        // Operation failed, so get all errors
+        for(Database.Error err : sr.getErrors()) {
+            System.debug('The following error has occurred.');
+            System.debug(err.getStatusCode() + ': ' + err.getMessage());
+            System.debug('Contact fields that affected this error: ' + err.getFields());
+	 }
+    }
+}
+
+===============================================================================================================================
+
+Você deve usar instruções DML ou métodos Database?
+
+Use instruções DML se quiser que qualquer erro que ocorra durante o processamento DML em massa seja gerado como uma exceção do Apex que interrompe 
+imediatamente o fluxo de controle (usando blocos try. . .catch). Esse comportamento é similar à maneira como exceções são tratadas na maioria das linguagens 
+de procedimento de bancos de dados.
+
+Use métodos de classe Database se quiser permitir o sucesso parcial de uma operação DML em massa — se um registro falhar, o restante da operação DML 
+ainda pode ser bem-sucedida. Seu aplicativo pode então inspecionar os registros rejeitados e possivelmente tentar efetuar a operação novamente. 
+Ao utilizar esse formato, você pode escrever um código que nunca gere erros de exceção de DML. Em vez disso, seu código pode usar a matriz de resultados 
+apropriada para julgar o sucesso ou a falha. Observe que métodos Database também incluem uma sintaxe compatível com exceções geradas, semelhante às instruções DML.
+
+==========================================================================================================
+
+Criando registros relacionados
+
+neste exemplo iremos selecionar o Id do primeiro registro inserido para fazer o relacionamento como o novo registro criado
+
+Account acct = new Account(Name='SFDC Account');
+insert acct;
+// Once the account is inserted, the sObject will be 
+// populated with an ID.
+// Get this ID.
+ID acctID = acct.ID;
+// Add a contact to this account.
+Contact mario = new Contact(
+    FirstName='Mario',
+    LastName='Ruiz',
+    Phone='415.555.1212',
+    AccountId=acctID);
+insert mario;
+
+========================================================================================================
+
+Atualizando registros relacionados
+Não é possível atualizar os campos dos registros relacionados com a mesma chamada para a operação DML. Isso exige uma chamada DML à parte. Por exemplo, ao inserir um novo contato, é possível especificar o registro de conta relacionado ao contato definindo o valor do campo AccountId. No entanto, não pode alterar o nome da conta sem atualizar a própria conta com uma chamada DML à parte. De modo parecido, ao atualizar um contato, você precisa fazer duas chamadas DML se também quiser atualizar a conta relacionada ao contato. O exemplo a seguir atualiza um contato e a conta relacionada a ele usando duas instruções update.
+// Query for the contact, which has been associated with an account.
+Contact queriedContact = [SELECT Account.Name 
+                          FROM Contact 
+                          WHERE FirstName = 'Mario' AND LastName='Ruiz'
+                          LIMIT 1];
+// Update the contact's phone number
+queriedContact.Phone = '(415)555-1213';
+// Update the related account industry
+queriedContact.Account.Industry = 'Technology';
+// Make two separate calls 
+// 1. This call is to update the contact's phone.
+update queriedContact;
+// 2. This call is to update the related account's Industry field.
+update queriedContact.Account; 
+
+============================================================================================================
+
+Desafio que foi feito
+
+resolução:
+
+public class AccountHandler {
+    public static Account insertNewAccount(String Names) {
+		Account a = new Account();
+        a.Name = Names;
+        
+        try{
+            insert a;
+        } catch(DmlException e) {
+			return null;
+        }
+        {
+            return a;
+        }
+    }
+}
+
+
