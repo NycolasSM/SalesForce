@@ -10,3 +10,4 @@ em.sendMail('nightneonbr@gmail.com', 'Trailhead Tutorial', '123 body');
 // estatico
 
 EmailManager.sendMail('Your email address', 'Trailhead Tutorial', '123 body');
+b 
