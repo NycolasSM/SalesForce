@@ -1,1 +1,70 @@
+https://trailhead.salesforce.com/pt-BR/content/learn/modules/apex_triggers/apex_triggers_intro
+
+o acionador é um código que é executado automaticamente que ao colocar uma condição e associalo a um objeto ele ira executar ou ate mesmo impedir a ação do usuario
+
+Sintaxe do acionador
+A sintaxe de uma definição de acionador é diferente da sintaxe de uma definição de classe. A definição de um acionador começa com a palavra-chave trigger. Depois, é seguida pelo nome do acionador, pelo objeto do Salesforce ao qual o acionador está associado e pelas condições sob as quais ele dispara. Um acionador tem a seguinte sintaxe:
+
+trigger TriggerName on ObjectName (trigger_events) {
+   code_block
+}
+
+===============================================================================================================
+
+Para executar um acionador antes ou depois de inserir, atualizar, excluir e cancelar exclusão de operações, especifique vários eventos de acionador em uma lista separada por vírgulas. Estes são os eventos que você pode especificar:
+before insert
+before update
+before delete
+after insert
+after update
+after delete
+after undelete
+
+===================================================================================================================
+
+Usando variáveis de contexto
+Para acessar os registros que dispararam o acionador, use variáveis ​​de contexto. Por exemplo, Trigger.New contém todos os registros que foram inseridos nos acionadores de inserção ou atualização. Trigger.Old fornece a versão antiga de sObjects antes de eles serem atualizados nos acionadores de atualização, ou uma lista de sObjects excluídos nos acionadores de exclusão. Os acionadores podem disparar quando um registro é inserido ou quando muitos registros são inseridos em grandes quantidades via API ou Apex. Portanto, variáveis ​​de contexto, como Trigger.New, podem conter apenas um registro ou vários registros. Você pode iterar sobre Trigger.New para obter cada sObject individual.
+
+Este exemplo é uma versão modificada do acionador de exemplo HelloWorldTrigger. Ele itera sobre cada conta em um loop for e atualiza o campo Descrição de cada uma.
+
+trigger HelloWorldTrigger on Account (before insert) {
+    for(Account a : Trigger.New) {
+        a.Description = 'New description';
+    }   
+}
+
+
+======================================================================================================================
+
+Variáveis de contexto do acionador
+A tabela a seguir apresenta uma lista exaustiva de todas as variáveis ​​de contexto disponíveis para acionadores.
+
+Variável	Uso
+isExecuting	Retorna true se o contexto atual para o código do Apex for um acionador, não uma página do Visualforce, um serviço Web ou uma chamada de API executeanonymous().
+isInsert	Retorna true se este acionador tiver sido disparado devido a uma operação de inserção, a partir da interface de usuário do Salesforce, Apex ou API.
+isUpdate	Retorna true se este acionador tiver sido disparado devido a uma operação de atualização, a partir da interface de usuário do Salesforce, Apex ou API.
+isDelete	Retorna true se este acionador tiver sido disparado devido a uma operação de exclusão, a partir da interface de usuário do Salesforce, Apex ou API.
+isBefore	Retorna true se este acionador tiver sido disparado antes de qualquer registro ter sido salvo.
+isAfter	Retorna true se este acionador tiver sido disparado após todos os registros terem sido salvos.
+isUndelete	Retorna true se este acionador tiver sido disparado após um registro ter sido recuperado da Lixeira. Essa recuperação pode ocorrer depois de uma operação de cancelamento de exclusão a partir da interface de usuário do Salesforce, Apex ou API.
+new	Retorna uma lista das novas versões dos registros sObject.
+Essa lista de sObjects está disponível apenas nos acionadores insert, update e undelete; os registros só podem ser modificados nos acionadores before.
+
+newMap	Um mapa de IDs para as novas versões dos registros sObject.
+Esse mapa está disponível apenas nos acionadores before update, after insert, after update e after undelete.
+
+old	Retorna uma lista das versões antigas dos registros sObject.
+Essa lista de sObjects está disponível apenas nos acionadores update e delete.
+
+oldMap	Um mapa de IDs para as versões antigas dos registros sObject.
+Esse mapa está disponível apenas nos acionadores update e delete.
+
+operationType	Retorna um enum do tipo System.TriggerOperation correspondente à operação atual.
+Alguns valores possíveis do enum System.TriggerOperation incluem: BEFORE_INSERT, BEFORE_UPDATE, BEFORE_DELETE,AFTER_INSERT, AFTER_UPDATE, AFTER_DELETE e AFTER_UNDELETE. Se você variar sua lógica de programação com base em vários tipos de acionador, pense em usar a instrução switch com permutações diferentes de estados únicos de enum de execução de acionador.
+
+size	O número total de registros em uma invocação do acionador – novos e antigos.
+
+==========================================================================================================================
+
+
 
